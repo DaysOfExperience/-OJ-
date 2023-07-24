@@ -197,7 +197,8 @@ namespace ns_control
             if(model_.GetAllQuestions(&questions))
             {
                 // std::cout << "debug : " << questions[0].title << std::endl;
-                // 获取题目列表数据成功,将所有的题目数据渲染构建成网页
+                // 获取题目列表数据成功
+                // 将所有的题目数据渲染构建成网页
                 view_.AllExpandHtml(questions, html);
             }
             else
@@ -256,7 +257,7 @@ namespace ns_control
                     break;
                 }
                 // 选取到了一个编译服务器
-                Client cli(m->ip_, m->port_);
+                httplib::Client cli(m->ip_, m->port_);
                 m->IncLoad();   // 增加对应编译服务器负载
                 LOG(ERROR) << " 选择编译主机成功,主机id : " << id << " 详情 : " << m->ip_ << ":" << m->port_ << " 当前主机负载为 : " << m->Load() << "\n";
                 if(auto res = cli.Post("/compile_and_run", compile_json, "application/json;charset=utf-8"))

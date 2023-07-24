@@ -58,7 +58,7 @@ namespace ns_model
                 // 获取到了一行数据
                 // 1 两数之和 简单 1 30000
                 std::vector<std::string> tokens;
-                StringUtil::SplitString(line, &tokens, " ");
+                StringUtil::SplitString(line, &tokens, " "); // 以" "为分隔符进行字符串切分
                 if(tokens.size() != 5)
                 {
                     // 这行数据无效

@@ -38,7 +38,7 @@ namespace ns_compile_run
          * ************************************/
         static void execute(const std::string &in_json, std::string *out_json)
         {
-            // 随便写写：输入的json串中有代码，输入，时间空间限制等等
+            // 输入的json串中有要编译的程序代码，对应的输入数据（忽略），时间空间限制等等
             // 提取出代码，写入到源文件中。
             // 编译源文件，看编译结果
             // 若编译成功，则运行可执行
@@ -46,7 +46,7 @@ namespace ns_compile_run
             // 若某一步出现了错误，则status设置为对应的数字
             // reason也写好
 
-            // 对json串进行反序列化
+            // 对json串进行反序列化，反序列化为结构化的数据
             Json::Value in_value;
             Json::Reader reader;
             reader.parse(in_json, in_value);
@@ -62,23 +62,23 @@ namespace ns_compile_run
             int run_result = 0;
             if (code.empty())
             {
-                status = -1; // 用户输入的OJ代码为空(非服务端问题)
+                status = -1; // status=1: 用户输入的OJ代码为空(非服务端问题)
                 goto END;
             }
             file_name = FileUtil::UniqueFileName();
             // 形成临时源文件，代码为传来的code，这个文件名不重要，唯一即可
-            // 我们的目的是编译并运行这份代码
+            // 我们的目的是编译运行这份代码
             if (FileUtil::WriteFile(PathUtil::Src(file_name), code) == false)
             {
-                status = -2; // 未知错误
+                status = -2; // status=2: 未知错误(服务端错误，具体为什么不管~（肯定是和写入文件有关联~）)
                 goto END;
             }
             if (Compiler::compile(file_name) == false)
             {
-                status = -3; // 编译失败，跳过后面的运行
+                status = -3; // status=3: 编译失败(则不需要运行，也不能运行，因为没有可执行生成~)
                 goto END;
             }
-            run_result = Runner::run(file_name, cpu_limit, mem_limit);
+            run_result = Runner::run(file_name, cpu_limit, mem_limit);  // 可执行文件已经存在，传参文件名还有限制即可~
             if (run_result < 0)
             {
                 status = -2; // 未知错误（不管run内部是打开文件失败还是创建子进程失败，统一称之为内部错误，即服务端错误）
@@ -95,7 +95,7 @@ namespace ns_compile_run
             Json::Value out_value;
             out_value["status"] = status;                          // 状态码
             out_value["reason"] = StatusToDesc(status, file_name); // 状态码描述
-            if (status == 0)
+            if (status == 0)  // 若运行错误>0，其他错误<0，则没有标准输出和标准错误字段在out_json中
             {
                 // 只有当编译且运行成功时，才有stdout stderr字段
                 std::string _stdout;
@@ -107,7 +107,7 @@ namespace ns_compile_run
             }
             Json::StyledWriter writer;
             *out_json = writer.write(out_value); // 将out_value进行序列化
-            RemoveTempFile(file_name);
+            RemoveTempFile(file_name);  // 清除编译运行生成的临时文件~
         }
         static std::string StatusToDesc(int status, const std::string &file_name)
         {
@@ -125,7 +125,7 @@ namespace ns_compile_run
                 desc = "未知错误"; // 服务端错误，太羞耻了
                 break;
             case -3:
-                // 代码编译时发生错误，返回编译错误原因
+                // OJ代码编译时发生错误，状态码描述为编译错误原因（g++编译错误时的标准输出内容）
                 FileUtil::ReadFile(PathUtil::CompileError(file_name), &desc, true);
                 break;
             case SIGABRT: // 6

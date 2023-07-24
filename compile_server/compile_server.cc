@@ -2,7 +2,6 @@
 #include "../common/httplib.h"
 
 using namespace ns_compile_run;
-using namespace httplib;
 
 static void Usage(const std::string &proc)
 {
@@ -16,7 +15,7 @@ int main(int argc, char *argv[])
     {
         Usage(argv[0]);
     }
-    Server svr;
+    httplib::Server svr;
     // 这里...接收一个req，返回一个resp？不太懂说实话，不过暂时来看不重要。
     // 感觉...就是cpp-httplib的接口使用方法可能
     // 网页，客户端访问/hello时就会有对应数据返回。

@@ -23,7 +23,7 @@ namespace ns_compiler
         // 输入参数: 编译的文件名（不带路径，不带后缀）
         static bool compile(const std::string &file_name)
         {
-            // 子进程程序替换为g++，进行编译，成功则没有输出，可执行程序生成
+            // 子进程程序替换为g++，进行编译，成功则没有输出信息，可执行程序生成
             // 失败则g++会向标准错误中输出错误信息，即编译失败的原因
             pid_t pid = fork();
             if (pid < 0)
